@@ -2,7 +2,7 @@ from pyexpat import features
 from data.data_loader import Dataset_Pred
 from hydroinformer.dataset import DynamicDataset, DynamicStaticDataset
 from exp.exp_basic import Exp_Basic
-from hydroinformer.models import InformerDS, InformerD
+from hydroinformer.models import InformerDS, InformerD, InformerDSI
 
 from utils.tools import EarlyStopping, adjust_learning_rate
 from utils.metrics import metric
@@ -27,9 +27,10 @@ class Exp_Informer(Exp_Basic):
     def _build_model(self):
         model_dict = {
             'informerDS':InformerDS,
+            'informerDSI':InformerDSI,
             'informerD': InformerD
         }
-        if self.args.model=='informerD' or self.args.model=='informerDS':
+        if self.args.model=='informerD' or self.args.model=='informerDS' or self.args.model=='informerDSI':
             e_layers = self.args.e_layers if self.args.model=='informerD' else self.args.s_layers
             model = model_dict[self.args.model](
                 self.args.enc_in,
