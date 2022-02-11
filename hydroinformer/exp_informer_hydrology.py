@@ -133,7 +133,7 @@ class Exp_Informer(Exp_Basic):
         total_loss = []
         for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(vali_loader):
             pred, true = self._process_one_batch(
-                vali_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr=)
+                vali_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
             loss = criterion(pred.detach().cpu(), true.detach().cpu())
             total_loss.append(loss)
         total_loss = np.average(total_loss)
