@@ -3,7 +3,7 @@ from hydroinformer.exp_informer_hydrology import Exp_Informer
 import torch
 
 
-seeds = [110, 111, 222, 333, 444, 555, 666, 777, 888, 999]
+seeds = [110] #, 111, 222, 333, 444, 555, 666, 777, 888, 999]
 
 for seed in seeds:
 
@@ -11,7 +11,7 @@ for seed in seeds:
 
     args = dotdict()
 
-    args.model = 'informerD' # model of experiment, options: [informerD (only dynamic forcings), informerDS (dynamic and static forcings) with a new FC layer, informerDSI (dynamic + static) with original projection layer]
+    args.model = 'informerDSI' # model of experiment, options: [informerD (only dynamic forcings), informerDS (dynamic and static forcings) with a new FC layer, informerDSI (dynamic + static) with original projection layer]
     #args.model = 'informerDS' # model of experiment, options: [informerD (only dynamic forcings), informerDS (dynamic and static forcings) with a new FC layer, informerDSI (dynamic + static) with original projection layer]
     #args.model = 'informerDSI' # model of experiment, options: [informerD (only dynamic forcings), informerDS (dynamic and static forcings) with a new FC layer, informerDSI (dynamic + static) with original projection layer]
 

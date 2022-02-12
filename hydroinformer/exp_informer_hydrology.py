@@ -132,11 +132,18 @@ class Exp_Informer(Exp_Basic):
     def vali(self, vali_data, vali_loader, criterion):
         self.model.eval()
         total_loss = []
-        for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(vali_loader):
-            pred, true = self._process_one_batch(
-                vali_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
-            loss = criterion(pred.detach().cpu(), true.detach().cpu())
-            total_loss.append(loss)
+        if self.args.data == 'camels_d':
+            for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(vali_loader):
+                pred, true = self._process_one_batch(
+                    vali_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
+                loss = criterion(pred.detach().cpu(), true.detach().cpu())
+                total_loss.append(loss)
+        elif self.args.data == 'camels_ds':
+            for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(vali_loader):
+                pred, true = self._process_one_batch(
+                    vali_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
+                loss = criterion(pred.detach().cpu(), true.detach().cpu())
+                total_loss.append(loss)
         total_loss = np.average(total_loss)
         self.model.train()
         return total_loss
@@ -168,13 +175,13 @@ class Exp_Informer(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             if self.args.data == 'camels_d':
-                for i, (batch_x,batch_y,batch_x_mark,batch_y_mark) in enumerate(train_loader):
+                for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(train_loader):
                     iter_count += 1
                 
                     model_optim.zero_grad()
                     #print(f'batch_x {batch_x.shape} batch_y {batch_y.shape} batch_x_mark {batch_x_mark.shape} batch_y_mark {batch_y_mark.shape} batch_static_attr {static_attr}')
                     pred, true = self._process_one_batch(
-                    train_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr=None)
+                    train_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
                     loss = criterion(pred, true)
                     train_loss.append(loss.item())
                 
@@ -271,9 +278,9 @@ class Exp_Informer(Exp_Basic):
                 trues.append(true.detach().cpu().numpy())
 
         elif self.args.data == 'camels_d':
-            for i, (batch_x,batch_y,batch_x_mark,batch_y_mark) in enumerate(test_loader):
+            for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(test_loader):
                 pred, true = self._process_one_batch(
-                    test_data, batch_x, batch_y, batch_x_mark, batch_y_mark)
+                    test_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
                 preds.append(pred.detach().cpu().numpy())
                 trues.append(true.detach().cpu().numpy())
 
@@ -336,7 +343,7 @@ class Exp_Informer(Exp_Basic):
         batch_x_mark = batch_x_mark.float().to(self.device)
         batch_y_mark = batch_y_mark.float().to(self.device)
 
-        static_attr = static_attr.float().to(self.device) if static_attr != None else None
+        static_attr = static_attr.float().to(self.device) if not None else None
 
         
         # decoder input

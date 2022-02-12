@@ -49,7 +49,7 @@ class DynamicDataset(Dataset):
         df_raw = xr.load_dataset(os.path.join(self.root_path, self.data_path)).to_dataframe()     
         cols = df_raw.columns.tolist()
         cols = cols[2:] # retira gauge_id e a data
-
+        df_raw = df_raw[0:352368]
         # Verifica qual dataset usar e filtra pela data
 
         if self.flag == 'train':
@@ -102,7 +102,7 @@ class DynamicDataset(Dataset):
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
 
-        return seq_x, seq_y, seq_x_mark, seq_y_mark
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, -1
     
     def __len__(self):
         return len(self.data_x) - self.seq_len- self.pred_len + 1
