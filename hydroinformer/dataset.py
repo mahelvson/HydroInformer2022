@@ -49,7 +49,6 @@ class DynamicDataset(Dataset):
         df_raw = xr.load_dataset(os.path.join(self.root_path, self.data_path)).to_dataframe()     
         cols = df_raw.columns.tolist()
         cols = cols[2:] # retira gauge_id e a data
-        df_raw = df_raw[0:352368]
         # Verifica qual dataset usar e filtra pela data
 
         if self.flag == 'train':
