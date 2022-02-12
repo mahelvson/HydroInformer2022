@@ -11,7 +11,7 @@ for seed in seeds:
 
     args = dotdict()
 
-    args.model = 'informerDSI' # model of experiment, options: [informerD (only dynamic forcings), informerDS (dynamic and static forcings) with a new FC layer, informerDSI (dynamic + static) with original projection layer]
+    args.model = 'informerD' # model of experiment, options: [informerD (only dynamic forcings), informerDS (dynamic and static forcings) with a new FC layer, informerDSI (dynamic + static) with original projection layer]
     #args.model = 'informerDS' # model of experiment, options: [informerD (only dynamic forcings), informerDS (dynamic and static forcings) with a new FC layer, informerDSI (dynamic + static) with original projection layer]
     #args.model = 'informerDSI' # model of experiment, options: [informerD (only dynamic forcings), informerDS (dynamic and static forcings) with a new FC layer, informerDSI (dynamic + static) with original projection layer]
 

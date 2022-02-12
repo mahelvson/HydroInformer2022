@@ -312,9 +312,9 @@ class Exp_Informer(Exp_Basic):
         
         preds = []
         
-        for i, (batch_x,batch_y,batch_x_mark,batch_y_mark) in enumerate(pred_loader):
+        for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(pred_loader):
             pred, true = self._process_one_batch(
-                pred_data, batch_x, batch_y, batch_x_mark, batch_y_mark)
+                pred_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
             preds.append(pred.detach().cpu().numpy())
 
         preds = np.array(preds)

@@ -1,1 +1,2 @@
-# HydroInformer2022: Informer for multibasin hydrology modeling
+# HydroInformer2022
+Informer for multibasin hydrology: rainfall-runoff modeling
