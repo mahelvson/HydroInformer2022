@@ -168,6 +168,7 @@ class Exp_Informer(Exp_Basic):
         if self.args.use_amp:
             scaler = torch.cuda.amp.GradScaler()
 
+        total_training_time = 0
         for epoch in range(self.args.train_epochs):
             iter_count = 0
             train_loss = []
@@ -184,7 +185,7 @@ class Exp_Informer(Exp_Basic):
                     train_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
                     loss = criterion(pred, true)
                     train_loss.append(loss.item())
-                
+
                     if (i+1) % 100==0:
                         print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
                         speed = (time.time()-time_now)/iter_count
@@ -200,20 +201,6 @@ class Exp_Informer(Exp_Basic):
                     else:
                         loss.backward()
                         model_optim.step()
-
-                print("Epoch: {} cost time: {}".format(epoch+1, time.time()-epoch_time))
-                train_loss = np.average(train_loss)
-                vali_loss = self.vali(vali_data, vali_loader, criterion)
-                test_loss = self.vali(test_data, test_loader, criterion)
-
-                print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
-                    epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-                early_stopping(vali_loss, self.model, path)
-                if early_stopping.early_stop:
-                    print("Early stopping")
-                    break
-
-                adjust_learning_rate(model_optim, epoch+1, self.args)
                 
             elif self.args.data == 'camels_ds':
                 for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(train_loader):
@@ -242,23 +229,26 @@ class Exp_Informer(Exp_Basic):
                         loss.backward()
                         model_optim.step()
 
-                print("Epoch: {} cost time: {}".format(epoch+1, time.time()-epoch_time))
-                train_loss = np.average(train_loss)
-                vali_loss = self.vali(vali_data, vali_loader, criterion)
-                test_loss = self.vali(test_data, test_loader, criterion)
+            cost_time = time.time()-epoch_time
+            total_training_time += cost_time
+            print("Epoch: {} cost time: {} seconds".format(epoch+1, cost_time))
+            train_loss = np.average(train_loss)
+            vali_loss = self.vali(vali_data, vali_loader, criterion)
+            test_loss = self.vali(test_data, test_loader, criterion)
 
-                print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
-                    epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-                early_stopping(vali_loss, self.model, path)
-                if early_stopping.early_stop:
-                    print("Early stopping")
-                    break    
+            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
+                epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            early_stopping(vali_loss, self.model, path)
+            if early_stopping.early_stop:
+                print("Early stopping")
+                break    
 
-                adjust_learning_rate(model_optim, epoch+1, self.args)
+            adjust_learning_rate(model_optim, epoch+1, self.args)
 
             
         best_model_path = path+'/'+'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
+        print("Total Training cost time: {} seconds".format(total_training_time))
         
         return self.model
 
@@ -270,6 +260,7 @@ class Exp_Informer(Exp_Basic):
         preds = []
         trues = []
         
+        start_test_time = time.time()
         if self.args.data == 'camels_ds':
             for i, (batch_x,batch_y,batch_x_mark,batch_y_mark, static_attr) in enumerate(test_loader):
                 pred, true = self._process_one_batch(
@@ -283,8 +274,8 @@ class Exp_Informer(Exp_Basic):
                     test_data, batch_x, batch_y, batch_x_mark, batch_y_mark, static_attr)
                 preds.append(pred.detach().cpu().numpy())
                 trues.append(true.detach().cpu().numpy())
-
-            
+        
+        total_test_time = time.time() - start_test_time            
 
         preds = np.array(preds)
         trues = np.array(trues)
@@ -300,10 +291,12 @@ class Exp_Informer(Exp_Basic):
 
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
+        print('total test time: {} seconds'.format(total_test_time))
 
         np.save(folder_path+'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path+'pred.npy', preds)
         np.save(folder_path+'true.npy', trues)
+        np.save(folder_path+'test_time.npy', np.array([total_test_time]))
 
         return
 
